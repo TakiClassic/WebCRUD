@@ -2,6 +2,7 @@ package DAO;
 
 import con.Conexion;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 
 public class DAOProductoImpl extends Conexion implements DAOProducto {
@@ -58,13 +59,17 @@ public class DAOProductoImpl extends Conexion implements DAOProducto {
             st.setString(2, pro.getState());
             st.setInt(3, pro.getPrice());
             st.setInt(4, pro.getMarca());
-            st.executeUpdate();
+            st.execute();
         }catch(Exception e){
             System.out.println("Error: " + " " + e);
             throw e;
         }finally{
             this.cerrar();
         }
+    }
+
+    public List<Producto> listar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

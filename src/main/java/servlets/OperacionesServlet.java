@@ -5,9 +5,17 @@
  */
 package servlets;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import DAO.DAOProductoImpl;
+import DAO.Producto;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author darkl
  */
-public class ServletControlador extends HttpServlet {
+@WebServlet(name = "OperacionesServlet", urlPatterns = {"/operaciones"})
+public class OperacionesServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -30,17 +39,47 @@ public class ServletControlador extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ServletControlador</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ServletControlador at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+        request.setCharacterEncoding("UTF-8");
+        RequestDispatcher rd;
+        Gson gson =new Gson();
+        try {
+            DAOProductoImpl productoDAO = new DAOProductoImpl();
+            switch (request.getParameter("ACTION")) {
+                case "GET_FORM":
+                    rd = request.getRequestDispatcher("/vista/FormProducto.jsp");
+                    rd.forward(request, response);
+//                    try (PrintWriter out = response.getWriter()) {
+//                        out.println("Voy a mostrar el form");
+//                    }
+                break;
+                case "ADD_DATA":
+                    Producto producto = (Producto) gson.fromJson(request.getParameter("DATA"),Producto.class);
+                    productoDAO.registrar(producto);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println("Se guardo el producto");
+                    }
+                break;
+                case "UPDATE_DATA":
+                        try (PrintWriter out = response.getWriter()) {
+                    out.println("Voy a actualizar un registro");
+                }
+                break;
+                case "DELETE_DATA":
+                        try (PrintWriter out = response.getWriter()) {
+                    out.println("Voy a borrar un registro");
+                }
+                break;
+                default:
+                        try (PrintWriter out = response.getWriter()) {
+                    out.println("ERROR: Opción invalida: " + request.getParameter("ACTION"));
+                }
+                break;
+            }
+        } catch (Exception e) {
+            Logger.getLogger(OperacionesServlet.class.getName()).log(Level.SEVERE, null, e);
+            try (PrintWriter out = response.getWriter()) {
+                out.println("ERROR: " + e.getMessage());
+            }
         }
     }
 
